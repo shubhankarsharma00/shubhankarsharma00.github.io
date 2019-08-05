@@ -1,5 +1,5 @@
 layout: sidebar
-style: light
+style: dark
 
 plugins:
   - jekyll-octicons
@@ -21,11 +21,11 @@ projects:
   # sort_by options:
   #   - pushed
   #   - stars
-  limit: 9
+  limit: 13
   exclude:
     archived: false
-    forks: true
-    projects:
+    forks: false
+    projects: ["FoodBook", "learning_pygame_and_opengl","Gewgle", "hexbot", "augur", "ELOSystem", "EntryToHack3.0"]
     # - repo-name
 
 # social_media:
@@ -47,12 +47,14 @@ projects:
   # youtube: your_username
 
 topics:
-  - name: CSS
-    web_url: https://github.com/topics/css
-    image_url: https://raw.githubusercontent.com/github/explore/6c6508f34230f0ac0d49e847a326429eefbfc030/topics/css/css.png
+  - name: Python
+    web_url: https://github.com/topics/python
+    image_url: http://weknowyourdreams.com/images/python/python-09.jpg
 
-  - name: Web design
+  - name: Ruby On Rails
+    web_url: https://github.com/topics/ruby-on-rails
+    image_url: https://pbs.twimg.com/media/CZGHPChUAAA3jqE.png
 
-  - name: Sass
-    web_url: https://github.com/topics/sass
-    image_url: https://raw.githubusercontent.com/github/explore/6c6508f34230f0ac0d49e847a326429eefbfc030/topics/sass/sass.png
+  - name: Tensorflow
+    web_url: https://github.com/topics/Tensorflow
+    image_url: https://pbs.twimg.com/profile_images/1103339571977248768/FtFnqC38_400x400.png
