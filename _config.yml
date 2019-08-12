@@ -21,12 +21,11 @@ projects:
   # sort_by options:
   #   - pushed
   #   - stars
-  limit: 13
+  limit: 12
   exclude:
     archived: false
     forks: false
-    projects: ["SOA19","FoodBook", "learning_pygame_and_opengl","Gewgle", "hexbot", "augur", "ELOSystem", "EntryToHack3.0"]
-    # - repo-name
+    projects: 
 
 # social_media:
   # behance: your_username
