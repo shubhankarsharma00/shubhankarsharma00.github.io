@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: miniMap.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: miniMap.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @typedef {Object} miniMapArea
+ * This object is used to draw the miniMap.
+ * @property {number} pageY
+ * @property {number} pageX
+ * @property {HTMLCanvasObject} canvas - the canvas object
+ * @property {function} setup - used to setup the parameters and dimensions
+ * @property {function} play - used to draw outline of minimap and call resolve
+ * @property {function} resolve - used to resolve all objects and draw them on minimap
+ * @property {function} clear - used to clear minimap
+ */
+var miniMapArea = {
+    canvas: document.getElementById('miniMapArea'),
+    setup() {
+        if (lightMode) return;
+
+        this.pageHeight = height; // Math.round(((parseInt($("#simulationArea").height())))/ratio)*ratio-50; // -50 for tool bar? Check again
+        this.pageWidth = width; // Math.round(((parseInt($("#simulationArea").width())))/ratio)*ratio;
+        this.pageY = (this.pageHeight - globalScope.oy);
+        this.pageX = (this.pageWidth - globalScope.ox);
+
+        if (simulationArea.minHeight != undefined) { this.minY = Math.min(simulationArea.minHeight, (-globalScope.oy) / globalScope.scale); } else { this.minY = (-globalScope.oy) / globalScope.scale; }
+        if (simulationArea.maxHeight != undefined) { this.maxY = Math.max(simulationArea.maxHeight, this.pageY / globalScope.scale); } else { this.maxY = this.pageY / globalScope.scale ;}
+        if (simulationArea.minWidth != undefined) { this.minX = Math.min(simulationArea.minWidth, (-globalScope.ox) / globalScope.scale); } else { this.minX = (-globalScope.ox) / globalScope.scale; }
+        if (simulationArea.maxWidth != undefined) { this.maxX = Math.max(simulationArea.maxWidth, (this.pageX) / globalScope.scale); } else { this.maxX = (this.pageX) / globalScope.scale; }
+
+        var h = this.maxY - this.minY;
+        var w = this.maxX - this.minX;
+
+        var ratio = Math.min(250 / h, 250 / w);
+        if (h > w) {
+            this.canvas.height = 250.0;
+            this.canvas.width = (250.0 * w) / h;
+        } else {
+            this.canvas.width = 250.0;
+            this.canvas.height = (250.0 * h) / w;
+        }
+
+        this.canvas.height += 5;
+        this.canvas.width += 5;
+
+        document.getElementById('miniMap').style.height = this.canvas.height;
+        document.getElementById('miniMap').style.width = this.canvas.width;
+        this.ctx = this.canvas.getContext('2d');
+        this.play(ratio);
+    },
+
+    play(ratio) {
+        if (lightMode) return;
+
+        this.ctx.fillStyle = '#bbb';
+        this.ctx.rect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fill();
+        this.resolve(ratio);
+    },
+    resolve(ratio) {
+        if (lightMode) return;
+
+        this.ctx.fillStyle = '#ddd';
+        this.ctx.beginPath();
+        this.ctx.rect(2.5 + ((this.pageX - this.pageWidth) / globalScope.scale - this.minX) * ratio, 2.5 + ((this.pageY - this.pageHeight) / globalScope.scale - this.minY) * ratio, this.pageWidth * ratio / globalScope.scale, this.pageHeight * ratio / globalScope.scale);
+        this.ctx.fill();
+
+        //  to show the area of current canvas
+        var lst = updateOrder;
+        this.ctx.strokeStyle = 'green';
+        this.ctx.fillStyle = 'DarkGreen';
+        for (var i = 0; i &lt; lst.length; i++) {
+            if (lst[i] === 'wires') {
+                for (var j = 0; j &lt; globalScope[lst[i]].length; j++) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(2.5 + (globalScope[lst[i]][j].node1.absX() - this.minX) * ratio, 2.5 + (globalScope[lst[i]][j].node1.absY() - this.minY) * ratio);
+                    this.ctx.lineTo(2.5 + (globalScope[lst[i]][j].node2.absX() - this.minX) * ratio, 2.5 + (globalScope[lst[i]][j].node2.absY() - this.minY) * ratio);
+                    this.ctx.stroke();
+                }
+            } else if (lst[i] != 'nodes') {
+                // Don't include SquareRGBLed here; it has correct size.
+                var ledY = 0;
+                if (lst[i] == 'DigitalLed' || lst[i] == 'VariableLed' || lst[i] == 'RGBLed') { ledY = 20; }
+
+                for (var j = 0; j &lt; globalScope[lst[i]].length; j++) {
+                    var xx = (globalScope[lst[i]][j].x - simulationArea.minWidth);
+                    var yy = (globalScope[lst[i]][j].y - simulationArea.minHeight);
+                    this.ctx.beginPath();
+                    var obj = globalScope[lst[i]][j];
+                    this.ctx.rect(2.5 + (obj.x - obj.leftDimensionX - this.minX) * ratio, 2.5 + (obj.y - obj.upDimensionY - this.minY) * ratio, (obj.rightDimensionX + obj.leftDimensionX) * ratio, (obj.downDimensionY + obj.upDimensionY + ledY) * ratio);
+
+                    this.ctx.fill();
+                    this.ctx.stroke();
+                }
+            }
+        }
+    },
+    clear() {
+        if (lightMode) return;
+        $('#miniMapArea').css('z-index', '-1');
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    },
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-canvasApi.html">canvasApi</a></li><li><a href="module-data.html">data</a></li><li><a href="module-engine.html">engine</a></li><li><a href="module-eventQueue.html">eventQueue</a></li><li><a href="module-modules.html">modules</a></li><li><a href="module-node.html">node</a></li><li><a href="module-wire.html">wire</a></li></ul><h3>Classes</h3><ul><li><a href="CircuitElement.html">CircuitElement</a></li><li><a href="Clock.html">Clock</a></li><li><a href="DflipFlop.html">DflipFlop</a></li><li><a href="Dlatch.html">Dlatch</a></li><li><a href="JKflipFlop.html">JKflipFlop</a></li><li><a href="Keyboard.html">Keyboard</a></li><li><a href="layoutNode.html">layoutNode</a></li><li><a href="module-eventQueue-EventQueue.html">EventQueue</a></li><li><a href="module-modules-Adder.html">Adder</a></li><li><a href="module-modules-ALU.html">ALU</a></li><li><a href="module-modules-AndGate.html">AndGate</a></li><li><a href="module-modules-Arrow.html">Arrow</a></li><li><a href="module-modules-BitSelector.html">BitSelector</a></li><li><a href="module-modules-Buffer.html">Buffer</a></li><li><a href="module-modules-Button.html">Button</a></li><li><a href="module-modules-ConstantVal.html">ConstantVal</a></li><li><a href="module-modules-ControlledInverter.html">ControlledInverter</a></li><li><a href="module-modules-Decoder.html">Decoder</a></li><li><a href="module-modules-Demultiplexer.html">Demultiplexer</a></li><li><a href="module-modules-DigitalLed.html">DigitalLed</a></li><li><a href="module-modules-Flag.html">Flag</a></li><li><a href="module-modules-ForceGate.html">ForceGate</a></li><li><a href="module-modules-Ground.html">Ground</a></li><li><a href="module-modules-HexDisplay.html">HexDisplay</a></li><li><a href="module-modules-Input.html">Input</a></li><li><a href="module-modules-LSB.html">LSB</a></li><li><a href="module-modules-MSB.html">MSB</a></li><li><a href="module-modules-Multiplexer.html">Multiplexer</a></li><li><a href="module-modules-NandGate.html">NandGate</a></li><li><a href="module-modules-NorGate.html">NorGate</a></li><li><a href="module-modules-NotGate.html">NotGate</a></li><li><a href="module-modules-OrGate.html">OrGate</a></li><li><a href="module-modules-Output.html">Output</a></li><li><a href="module-modules-Power.html">Power</a></li><li><a href="module-modules-PriorityEncoder.html">PriorityEncoder</a></li><li><a href="module-modules-Rectangle.html">Rectangle</a></li><li><a href="module-modules-RGBLed.html">RGBLed</a></li><li><a href="module-modules-Rom.html">Rom</a></li><li><a href="module-modules-SevenSegDisplay.html">SevenSegDisplay</a></li><li><a href="module-modules-SixteenSegDisplay.html">SixteenSegDisplay</a></li><li><a href="module-modules-Splitter.html">Splitter</a></li><li><a href="module-modules-SquareRGBLed.html">SquareRGBLed</a></li><li><a href="module-modules-Stepper.html">Stepper</a></li><li><a href="module-modules-Text.html">Text</a></li><li><a href="module-modules-TriState.html">TriState</a></li><li><a href="module-modules-Tunnel.html">Tunnel</a></li><li><a href="module-modules-TwoComplement.html">TwoComplement</a></li><li><a href="module-modules-VariableLed.html">VariableLed</a></li><li><a href="module-modules-XnorGate.html">XnorGate</a></li><li><a href="module-modules-XorGate.html">XorGate</a></li><li><a href="module-node.Node.html">Node</a></li><li><a href="module-wire.Wire.html">Wire</a></li><li><a href="Random.html">Random</a></li><li><a href="Scope.html">Scope</a></li><li><a href="SRflipFlop.html">SRflipFlop</a></li><li><a href="StopWatch.html">StopWatch</a></li><li><a href="SubCircuit.html">SubCircuit</a></li><li><a href="TB_Input.html">TB_Input</a></li><li><a href="TB_Output.html">TB_Output</a></li><li><a href="TflipFlop.html">TflipFlop</a></li><li><a href="TTY.html">TTY</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addPlot">addPlot</a></li><li><a href="global.html#cancelLayout">cancelLayout</a></li><li><a href="global.html#changeClockEnable">changeClockEnable</a></li><li><a href="global.html#changeLightMode">changeLightMode</a></li><li><a href="global.html#clockTick">clockTick</a></li><li><a href="global.html#copy">copy</a></li><li><a href="global.html#Counter">Counter</a></li><li><a href="global.html#createBooleanPrompt">createBooleanPrompt</a></li><li><a href="global.html#createCombinationalAnalysisPrompt">createCombinationalAnalysisPrompt</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decreaseLayoutHeight">decreaseLayoutHeight</a></li><li><a href="global.html#decreaseLayoutWidth">decreaseLayoutWidth</a></li><li><a href="global.html#determine_label">determine_label</a></li><li><a href="global.html#distance">distance</a></li><li><a href="global.html#DPR">DPR</a></li><li><a href="global.html#EEPROM">EEPROM</a></li><li><a href="global.html#errorDetected">errorDetected</a></li><li><a href="global.html#forceResetNodes">forceResetNodes</a></li><li><a href="global.html#globalScope">globalScope</a></li><li><a href="global.html#gridUpdate">gridUpdate</a></li><li><a href="global.html#height">height</a></li><li><a href="global.html#hideRestricted">hideRestricted</a></li><li><a href="global.html#increaseLayoutHeight">increaseLayoutHeight</a></li><li><a href="global.html#increaseLayoutWidth">increaseLayoutWidth</a></li><li><a href="global.html#layout_buffer">layout_buffer</a></li><li><a href="global.html#layoutMode">layoutMode</a></li><li><a href="global.html#layoutResetNodes">layoutResetNodes</a></li><li><a href="global.html#layoutTitleDown">layoutTitleDown</a></li><li><a href="global.html#layoutTitleLeft">layoutTitleLeft</a></li><li><a href="global.html#layoutTitleRight">layoutTitleRight</a></li><li><a href="global.html#layoutTitleUp">layoutTitleUp</a></li><li><a href="global.html#layoutUpdate">layoutUpdate</a></li><li><a href="global.html#lightMode">lightMode</a></li><li><a href="global.html#loading">loading</a></li><li><a href="global.html#loadSubCircuit">loadSubCircuit</a></li><li><a href="global.html#objectSelection">objectSelection</a></li><li><a href="global.html#openInNewTab">openInNewTab</a></li><li><a href="global.html#paneLayout">paneLayout</a></li><li><a href="global.html#paste">paste</a></li><li><a href="global.html#prevErrorMessage">prevErrorMessage</a></li><li><a href="global.html#prevShowMessage">prevShowMessage</a></li><li><a href="global.html#projectSaved">projectSaved</a></li><li><a href="global.html#RAM">RAM</a></li><li><a href="global.html#recoverProject">recoverProject</a></li><li><a href="global.html#renderLayout">renderLayout</a></li><li><a href="global.html#resetup">resetup</a></li><li><a href="global.html#returntheverilogfortheproject">return the verilog for the project</a></li><li><a href="global.html#runTest">runTest</a></li><li><a href="global.html#saveLayout">saveLayout</a></li><li><a href="global.html#scopeList">scopeList</a></li><li><a href="global.html#selectAll">selectAll</a></li><li><a href="global.html#setup">setup</a></li><li><a href="global.html#setupElementLists">setupElementLists</a></li><li><a href="global.html#setupEnvironment">setupEnvironment</a></li><li><a href="global.html#setupUI">setupUI</a></li><li><a href="global.html#showError">showError</a></li><li><a href="global.html#showMessage">showMessage</a></li><li><a href="global.html#showRestricted">showRestricted</a></li><li><a href="global.html#startListeners">startListeners</a></li><li><a href="global.html#startPlot">startPlot</a></li><li><a href="global.html#tosetuptheplottingarea">to setup the plotting area</a></li><li><a href="global.html#toupdatetheplot">to update the plot</a></li><li><a href="global.html#toggleLayoutMode">toggleLayoutMode</a></li><li><a href="global.html#toggleLayoutTitle">toggleLayoutTitle</a></li><li><a href="global.html#uniq">uniq</a></li><li><a href="global.html#uniqueIdCounter">uniqueIdCounter</a></li><li><a href="global.html#unit">unit</a></li><li><a href="global.html#updateCanvas">updateCanvas</a></li><li><a href="global.html#updatePosition">updatePosition</a></li><li><a href="global.html#updateRestrictedElementsInScope">updateRestrictedElementsInScope</a></li><li><a href="global.html#updateRestrictedElementsList">updateRestrictedElementsList</a></li><li><a href="global.html#updateSimulation">updateSimulation</a></li><li><a href="global.html#updateSubcircuit">updateSubcircuit</a></li><li><a href="global.html#width">width</a></li><li><a href="global.html#willBeUpdated">willBeUpdated</a></li><li><a href="global.html#wireToBeChecked">wireToBeChecked</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed May 20 2020 15:07:41 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

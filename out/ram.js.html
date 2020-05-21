@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: ram.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: ram.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * RAM Component.
+ *
+ * Two settings are available:
+ * - addressWidth: 1 to 20, default=10. Controls the width of the address input.
+ * - bitWidth: 1 to 32, default=8. Controls the width of data pins.
+ *
+ * Amount of memory in the element is 2^addressWidth x bitWidth bits.
+ * Minimum RAM size is: 2^1  x  1 = 2 bits.
+ * Maximum RAM size is: 2^20 x 32 = 1M x 32 bits => 32 Mbits => 4MB.
+ * Maximum 8-bits size: 2^20 x  8 = 1M x 8 bits => 1MB.
+ * Default RAM size is: 2^10 x  8 = 1024 bytes => 1KB.
+ *
+ * RAMs are volatile therefore this component does not persist the memory contents.
+ *
+ * Changes to addressWidth and bitWidth also cause data to be lost.
+ * Think of these operations as being equivalent to taking a piece of RAM out of a
+ * circuit board and replacing it with another RAM of different size.
+ *
+ * The contents of the RAM can be reset to zero by setting the RESET pin 1 or
+ * or by selecting the component and pressing the "Reset" button in the properties window.
+ *
+ * The contents of the RAM can be dumped to the console by transitioning CORE DUMP pin to 1
+ * or by selecting the component and pressing the "Core Dump" button in the properties window.
+ * Address spaces that have not been written will show up as `undefined` in the core dump.
+ *
+ * NOTE: The maximum address width of 20 is arbitrary.
+ * Larger values are possible, but in practice circuits won't need this much
+ * memory and keeping the value small helps avoid allocating too much memory on the browser.
+ * Internally we use a sparse array, so only the addresses that are written are actually
+ * allocated. Nevertheless, it is better to prevent large allocations from happening
+ * by keeping the max addressWidth small. If needed, we can increase the max.
+ */
+function RAM(x, y, scope = globalScope, dir = "RIGHT", bitWidth = 8, addressWidth = 10) {
+    CircuitElement.call(this, x, y, scope, dir, Math.min(Math.max(1, bitWidth), 32));
+    this.setDimensions(60, 40);
+
+    this.directionFixed = true;
+    this.labelDirection = "UP";
+
+    this.addressWidth = Math.min(Math.max(1, addressWidth), this.maxAddressWidth);
+    this.address = new Node(-this.leftDimensionX, -20, 0, this, this.addressWidth, "ADDRESS");
+    this.dataIn = new Node(-this.leftDimensionX, 0, 0, this, this.bitWidth, "DATA IN");
+    this.write = new Node(-this.leftDimensionX, 20, 0, this, 1, "WRITE");
+    this.reset = new Node(0, this.downDimensionY, 0, this, 1, "RESET");
+    this.coreDump = new Node(-20, this.downDimensionY, 0, this, 1, "CORE DUMP");
+    this.dataOut = new Node(this.rightDimensionX, 0, 1, this, this.bitWidth, "DATA OUT");
+    this.prevCoreDumpValue = undefined;
+
+    this.clearData()
+}
+RAM.prototype = Object.create(CircuitElement.prototype);
+RAM.prototype.tooltipText = "Random Access Memory";
+RAM.prototype.shortName = "RAM";
+RAM.prototype.maxAddressWidth = 20;
+RAM.prototype.constructor = RAM;
+RAM.prototype.helplink = "https://docs.circuitverse.org/#/memoryElements?id=ram";
+RAM.prototype.mutableProperties = {
+    "addressWidth": {
+        name: "Address Width",
+        type: "number",
+        max: "20",
+        min: "1",
+        func: "changeAddressWidth",
+    },
+    "dump": {
+        name: "Core Dump",
+        type: "button",
+        func: "dump",
+    },
+    "reset": {
+        name: "Reset",
+        type: "button",
+        func: "clearData",
+    },
+}
+RAM.prototype.customSave = function () {
+    return {
+        // NOTE: data is not persisted since RAMs are volatile.
+        constructorParamaters: [this.direction, this.bitWidth, this.addressWidth],
+        nodes: {
+            address: findNode(this.address),
+            dataIn: findNode(this.dataIn),
+            write: findNode(this.write),
+            reset: findNode(this.reset),
+            coreDump: findNode(this.coreDump),
+            dataOut: findNode(this.dataOut),
+        },
+    }
+}
+RAM.prototype.newBitWidth = function (value) {
+    value = parseInt(value);
+    if (!isNaN(value) &amp;&amp; this.bitWidth != value &amp;&amp; value >= 1 &amp;&amp; value &lt;= 32) {
+        this.bitWidth = value;
+        this.dataIn.bitWidth = value;
+        this.dataOut.bitWidth = value;
+        this.clearData();
+    }
+}
+RAM.prototype.changeAddressWidth = function (value) {
+    value = parseInt(value);
+    if (!isNaN(value) &amp;&amp; this.addressWidth != value &amp;&amp; value >= 1 &amp;&amp; value &lt;= this.maxAddressWidth) {
+        this.addressWidth = value;
+        this.address.bitWidth = value;
+        this.clearData();
+    }
+}
+RAM.prototype.clearData = function () {
+    this.data = new Array(Math.pow(2, this.addressWidth));
+    this.tooltipText = this.memSizeString() + " " + this.shortName;
+}
+RAM.prototype.isResolvable = function () {
+    return this.address.value !== undefined || this.reset.value !== undefined || this.coreDump.value !== undefined;
+}
+RAM.prototype.resolve = function () {
+    if (this.write.value == 1) {
+        this.data[this.address.value] = this.dataIn.value;
+    }
+
+    if (this.reset.value == 1) {
+        this.clearData();
+    }
+
+    if (this.coreDump.value &amp;&amp; this.prevCoreDumpValue != this.coreDump.value) {
+        this.dump();
+    }
+    this.prevCoreDumpValue = this.coreDump.value;
+
+    this.dataOut.value = this.data[this.address.value] || 0;
+    simulationArea.simulationQueue.add(this.dataOut);
+}
+RAM.prototype.customDraw = function () {
+    var ctx = simulationArea.context;
+    var xx = this.x;
+    var yy = this.y;
+
+    ctx.beginPath();
+    ctx.strokeStyle = "gray";
+    ctx.fillStyle = this.write.value ? "red" : "lightgreen";
+    ctx.lineWidth = correctWidth(1);
+    drawCircle2(ctx, 50, -30, 3, xx, yy, this.direction);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.textAlign = "center";
+    ctx.fillStyle = "black";
+    fillText4(ctx, this.memSizeString(), 0, -10, xx, yy, this.direction, 12);
+    fillText4(ctx, this.shortName, 0, 10, xx, yy, this.direction, 12);
+    fillText2(ctx, "A", this.address.x + 12, this.address.y, xx, yy, this.direction);
+    fillText2(ctx, "DI", this.dataIn.x + 12, this.dataIn.y, xx, yy, this.direction);
+    fillText2(ctx, "W", this.write.x + 12, this.write.y, xx, yy, this.direction);
+    fillText2(ctx, "DO", this.dataOut.x - 15, this.dataOut.y, xx, yy, this.direction);
+    ctx.fill();
+}
+RAM.prototype.memSizeString = function () {
+    var mag = ['', 'K', 'M'];
+    var unit = this.bitWidth == 8 ? "B" : this.bitWidth == 1 ? "b" : " x " + this.bitWidth + 'b';
+    var v = Math.pow(2, this.addressWidth);
+    var m = 0;
+    while (v >= 1024 &amp;&amp; m &lt; mag.length - 1) {
+        v /= 1024;
+        m++;
+    }
+    return v + mag[m] + unit;
+}
+RAM.prototype.dump = function () {
+    var logLabel = console.group &amp;&amp; this.label;
+    if (logLabel) {
+        console.group(this.label);
+    }
+
+    console.log(this.data)
+
+    if (logLabel) {
+        console.groupEnd();
+    }
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-canvasApi.html">canvasApi</a></li><li><a href="module-data.html">data</a></li><li><a href="module-engine.html">engine</a></li><li><a href="module-eventQueue.html">eventQueue</a></li><li><a href="module-modules.html">modules</a></li><li><a href="module-node.html">node</a></li><li><a href="module-wire.html">wire</a></li></ul><h3>Classes</h3><ul><li><a href="CircuitElement.html">CircuitElement</a></li><li><a href="Clock.html">Clock</a></li><li><a href="DflipFlop.html">DflipFlop</a></li><li><a href="Dlatch.html">Dlatch</a></li><li><a href="JKflipFlop.html">JKflipFlop</a></li><li><a href="Keyboard.html">Keyboard</a></li><li><a href="layoutNode.html">layoutNode</a></li><li><a href="module-eventQueue-EventQueue.html">EventQueue</a></li><li><a href="module-modules-Adder.html">Adder</a></li><li><a href="module-modules-ALU.html">ALU</a></li><li><a href="module-modules-AndGate.html">AndGate</a></li><li><a href="module-modules-Arrow.html">Arrow</a></li><li><a href="module-modules-BitSelector.html">BitSelector</a></li><li><a href="module-modules-Buffer.html">Buffer</a></li><li><a href="module-modules-Button.html">Button</a></li><li><a href="module-modules-ConstantVal.html">ConstantVal</a></li><li><a href="module-modules-ControlledInverter.html">ControlledInverter</a></li><li><a href="module-modules-Decoder.html">Decoder</a></li><li><a href="module-modules-Demultiplexer.html">Demultiplexer</a></li><li><a href="module-modules-DigitalLed.html">DigitalLed</a></li><li><a href="module-modules-Flag.html">Flag</a></li><li><a href="module-modules-ForceGate.html">ForceGate</a></li><li><a href="module-modules-Ground.html">Ground</a></li><li><a href="module-modules-HexDisplay.html">HexDisplay</a></li><li><a href="module-modules-Input.html">Input</a></li><li><a href="module-modules-LSB.html">LSB</a></li><li><a href="module-modules-MSB.html">MSB</a></li><li><a href="module-modules-Multiplexer.html">Multiplexer</a></li><li><a href="module-modules-NandGate.html">NandGate</a></li><li><a href="module-modules-NorGate.html">NorGate</a></li><li><a href="module-modules-NotGate.html">NotGate</a></li><li><a href="module-modules-OrGate.html">OrGate</a></li><li><a href="module-modules-Output.html">Output</a></li><li><a href="module-modules-Power.html">Power</a></li><li><a href="module-modules-PriorityEncoder.html">PriorityEncoder</a></li><li><a href="module-modules-Rectangle.html">Rectangle</a></li><li><a href="module-modules-RGBLed.html">RGBLed</a></li><li><a href="module-modules-Rom.html">Rom</a></li><li><a href="module-modules-SevenSegDisplay.html">SevenSegDisplay</a></li><li><a href="module-modules-SixteenSegDisplay.html">SixteenSegDisplay</a></li><li><a href="module-modules-Splitter.html">Splitter</a></li><li><a href="module-modules-SquareRGBLed.html">SquareRGBLed</a></li><li><a href="module-modules-Stepper.html">Stepper</a></li><li><a href="module-modules-Text.html">Text</a></li><li><a href="module-modules-TriState.html">TriState</a></li><li><a href="module-modules-Tunnel.html">Tunnel</a></li><li><a href="module-modules-TwoComplement.html">TwoComplement</a></li><li><a href="module-modules-VariableLed.html">VariableLed</a></li><li><a href="module-modules-XnorGate.html">XnorGate</a></li><li><a href="module-modules-XorGate.html">XorGate</a></li><li><a href="module-node.Node.html">Node</a></li><li><a href="module-wire.Wire.html">Wire</a></li><li><a href="Random.html">Random</a></li><li><a href="Scope.html">Scope</a></li><li><a href="SRflipFlop.html">SRflipFlop</a></li><li><a href="StopWatch.html">StopWatch</a></li><li><a href="SubCircuit.html">SubCircuit</a></li><li><a href="TB_Input.html">TB_Input</a></li><li><a href="TB_Output.html">TB_Output</a></li><li><a href="TflipFlop.html">TflipFlop</a></li><li><a href="TTY.html">TTY</a></li></ul><h3>Global</h3><ul><li><a href="global.html#addPlot">addPlot</a></li><li><a href="global.html#cancelLayout">cancelLayout</a></li><li><a href="global.html#changeClockEnable">changeClockEnable</a></li><li><a href="global.html#changeLightMode">changeLightMode</a></li><li><a href="global.html#clockTick">clockTick</a></li><li><a href="global.html#copy">copy</a></li><li><a href="global.html#Counter">Counter</a></li><li><a href="global.html#createBooleanPrompt">createBooleanPrompt</a></li><li><a href="global.html#createCombinationalAnalysisPrompt">createCombinationalAnalysisPrompt</a></li><li><a href="global.html#cut">cut</a></li><li><a href="global.html#decreaseLayoutHeight">decreaseLayoutHeight</a></li><li><a href="global.html#decreaseLayoutWidth">decreaseLayoutWidth</a></li><li><a href="global.html#determine_label">determine_label</a></li><li><a href="global.html#distance">distance</a></li><li><a href="global.html#DPR">DPR</a></li><li><a href="global.html#EEPROM">EEPROM</a></li><li><a href="global.html#errorDetected">errorDetected</a></li><li><a href="global.html#forceResetNodes">forceResetNodes</a></li><li><a href="global.html#globalScope">globalScope</a></li><li><a href="global.html#gridUpdate">gridUpdate</a></li><li><a href="global.html#height">height</a></li><li><a href="global.html#hideRestricted">hideRestricted</a></li><li><a href="global.html#increaseLayoutHeight">increaseLayoutHeight</a></li><li><a href="global.html#increaseLayoutWidth">increaseLayoutWidth</a></li><li><a href="global.html#layout_buffer">layout_buffer</a></li><li><a href="global.html#layoutMode">layoutMode</a></li><li><a href="global.html#layoutResetNodes">layoutResetNodes</a></li><li><a href="global.html#layoutTitleDown">layoutTitleDown</a></li><li><a href="global.html#layoutTitleLeft">layoutTitleLeft</a></li><li><a href="global.html#layoutTitleRight">layoutTitleRight</a></li><li><a href="global.html#layoutTitleUp">layoutTitleUp</a></li><li><a href="global.html#layoutUpdate">layoutUpdate</a></li><li><a href="global.html#lightMode">lightMode</a></li><li><a href="global.html#loading">loading</a></li><li><a href="global.html#loadSubCircuit">loadSubCircuit</a></li><li><a href="global.html#objectSelection">objectSelection</a></li><li><a href="global.html#openInNewTab">openInNewTab</a></li><li><a href="global.html#paneLayout">paneLayout</a></li><li><a href="global.html#paste">paste</a></li><li><a href="global.html#prevErrorMessage">prevErrorMessage</a></li><li><a href="global.html#prevShowMessage">prevShowMessage</a></li><li><a href="global.html#projectSaved">projectSaved</a></li><li><a href="global.html#RAM">RAM</a></li><li><a href="global.html#recoverProject">recoverProject</a></li><li><a href="global.html#renderLayout">renderLayout</a></li><li><a href="global.html#resetup">resetup</a></li><li><a href="global.html#returntheverilogfortheproject">return the verilog for the project</a></li><li><a href="global.html#runTest">runTest</a></li><li><a href="global.html#saveLayout">saveLayout</a></li><li><a href="global.html#scopeList">scopeList</a></li><li><a href="global.html#selectAll">selectAll</a></li><li><a href="global.html#setup">setup</a></li><li><a href="global.html#setupElementLists">setupElementLists</a></li><li><a href="global.html#setupEnvironment">setupEnvironment</a></li><li><a href="global.html#setupUI">setupUI</a></li><li><a href="global.html#showError">showError</a></li><li><a href="global.html#showMessage">showMessage</a></li><li><a href="global.html#showRestricted">showRestricted</a></li><li><a href="global.html#startListeners">startListeners</a></li><li><a href="global.html#startPlot">startPlot</a></li><li><a href="global.html#tosetuptheplottingarea">to setup the plotting area</a></li><li><a href="global.html#toupdatetheplot">to update the plot</a></li><li><a href="global.html#toggleLayoutMode">toggleLayoutMode</a></li><li><a href="global.html#toggleLayoutTitle">toggleLayoutTitle</a></li><li><a href="global.html#uniq">uniq</a></li><li><a href="global.html#uniqueIdCounter">uniqueIdCounter</a></li><li><a href="global.html#unit">unit</a></li><li><a href="global.html#updateCanvas">updateCanvas</a></li><li><a href="global.html#updatePosition">updatePosition</a></li><li><a href="global.html#updateRestrictedElementsInScope">updateRestrictedElementsInScope</a></li><li><a href="global.html#updateRestrictedElementsList">updateRestrictedElementsList</a></li><li><a href="global.html#updateSimulation">updateSimulation</a></li><li><a href="global.html#updateSubcircuit">updateSubcircuit</a></li><li><a href="global.html#width">width</a></li><li><a href="global.html#willBeUpdated">willBeUpdated</a></li><li><a href="global.html#wireToBeChecked">wireToBeChecked</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Wed May 20 2020 15:07:41 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
