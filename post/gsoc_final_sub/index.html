@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark"><head>
+    <title> Shubhankar Sharma | Smulator Code Refactor: Final Report </title>
+    <meta charset="utf-8"><meta name="generator" content="Hugo 0.74.3" /><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+    <meta name="description" content="Open Source Enthusiast and Senior at NIT Hamirpur">
+    
+    <link rel="stylesheet" href="http://shubhankarsharma00.tech/css/style.min.5be3a155aa89a24586c761b1b5538c4040e3735ee32ac12a708dc1696c0982f5.css" integrity="sha256-W&#43;OhVaqJokWGx2GxtVOMQEDjc17jKsEqcI3BaWwJgvU=" crossorigin="anonymous" type="text/css"><link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    
+    <link rel="shortcut icon" href="http://shubhankarsharma00.tech/favicons/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="http://shubhankarsharma00.tech/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="http://shubhankarsharma00.tech/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="http://shubhankarsharma00.tech/favicons/favicon-16x16.png">
+    <link rel="canonical" href="http://shubhankarsharma00.tech/post/gsoc_final_sub/">
+    
+    
+    <script type="text/javascript" src="http://shubhankarsharma00.tech/js/anatole-header.min.7e2fc0724240b28c6e214687e73a4a6eb6c196bbace546b9dc86e94cca120b5c.js" integrity="sha256-fi/AckJAsoxuIUaH5zpKbrbBlrus5Ua53IbpTMoSC1w=" crossorigin="anonymous"></script>
+    <meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://shubhankarsharma00.tech/images/site-feature-image.png"/>
+
+<meta name="twitter:title" content="Smulator Code Refactor: Final Report"/>
+<meta name="twitter:description" content="This is my final blogpost regarding GSoC 2020 and I will try to summarize everything I managed to accomplish while working on this amazing project. I think everyone will remember the summer of 2020 for their entire lives because of the stuff that happened this year but for me it will be extra memorable because of this great journey."/>
+
+</head><body><div class="sidebar animated fadeInDown">
+    <div class="logo-title">
+        <div class="title">
+            <img src="http://shubhankarsharma00.tech/images/dp.jpg" alt="profile picture">
+            <h3 title=""><a href="/">GSoC&#39;20 | CSE@NIT-H</a></h3>
+            <div class="description">
+                <p>Open Source Enthusiast and Senior at NIT Hamirpur</p>
+            </div>
+        </div>
+    </div>
+    <ul class="social-links">
+        
+            <li>
+                <a href="https://www.linkedin.com/in/shubhankarsharma00/" rel="me" aria-label="Linkedin">
+                    <i class="fa fa-2x fa-linkedin" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            <li>
+                <a href="https://github.com/shubhankarsharma00" rel="me" aria-label="GitHub">
+                    <i class="fa fa-2x fa-github" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            <li>
+                <a href="https://www.instagram.com/shubhankarsharma00" rel="me" aria-label="instagram">
+                    <i class="fa fa-2x fa-instagram" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+            <li>
+                <a href="mailto:shubhankarsharma78@gmail.com" rel="me" aria-label="e-mail">
+                    <i class="fa fa-2x fa-envelope" aria-hidden="true"></i>
+                </a>
+            </li>
+        
+    </ul>
+    <div class="footer">
+        <div class="by_farbox">&copy; Shubhankar Sharma 2020 </div>
+    </div>
+</div>
+<div class="main">
+            <div class="page-top animated fadeInDown">
+    <a role="button" class="navbar-burger" data-target="navMenu" aria-label="menu" aria-expanded="false" >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+    <ul class="nav" id="navMenu">
+        
+        
+        
+        <li><a  href="/"  title="">Home</a></li>
+        
+        
+        <li><a  href="/post/"  title="">Posts</a></li>
+        
+        
+        <li><a  href="/about/"  title="">About</a></li>
+        
+        
+        <li class="theme-switch-item">
+        <a class="theme-switch" title="Switch Theme">
+            <i class="fa fa-adjust fa-fw" aria-hidden="true"></i>
+        </a>
+        </li>
+    </ul>
+</div>
+
+            <div class="autopagerize_page_element">
+                <div class="content">
+<div class="post animated fadeInDown">
+    <div class="post-content">
+
+      <div class="post-title">
+        <h3>Smulator Code Refactor: Final Report
+        </h3>
+        
+        <div class="info">
+          <i class="fa fa-sun-o"></i>
+          <span class="date">Thu, Aug 27, 2020</span>
+          <i class="fa fa-clock-o"></i><span class="reading-time">6-minute read</span>
+        </div>
+        
+        </div>
+
+    <p>This is my final blogpost regarding GSoC 2020 and I will try to summarize everything I managed to accomplish while working on this amazing project. I think everyone will remember the summer of 2020 for their entire lives because of the stuff that happened this year but for me it will be extra memorable because of this great journey.</p>
+<h2 id="recap">Recap:</h2>
+<p>My proposal has 3 parts Making a Separate Repository and Refactoring Simulator Code: The first part is refactoring of the simulator code base. For some time now, the CircuitVerse community has wanted to refactor the current javascript codebase (sample GitHub issues: #199, #110, #190). Testing Simulator Code: With bug fixes and new features being implemented by a growing community of circuitverse it will be essential to test Pull Requests before CircuitVerse admins and maintainers merge them. so the second part of my proposal is adding tests to ensure the basic functionality of the simulator. Electron App: CircuitVerse provides a platform to perform simulations on an online simulator that users don’t have to install, is lightweight and has a lot of features but sadly not everyone has unrestricted access to the internet. This can be one of the reasons why CircuitVerse’s maximum traffic is from developed countries with above-average or good internet connectivity like the USA(26%), India(11%), UK(6%) and Canada(4%). It would be a big step towards increasing accessibility to have an offline App. Hence, I propose the third part of my proposal: An offline electron app for CircuitVerse.</p>
+<h2 id="phase-1">Phase 1:</h2>
+<p>In my proposal I planned to dive right into the toughest parts and start refactoring them but there were some open issues that needed to be merged before I could start refactoring. So in our first meeting we decided I should start from documentation first and then get into refactoring. This was a blessing because while documenting I learnt that there were some assumptions I was going to make while refactoring which were baseless.
+For documenting each file, I used JSDoc. JSDoc can auto-generate HTML pages for Documentation based on comments in files which gives more meaning to comments and also leads to an easily readable and navigable Documentation.
+I started off with files that I had read about a hundred times during the research period and proceeded to ones I never felt the need to read before. It was a good learning opportunity because now that I have documented each and every function and I know (or at least I hope I do) what every function does in those 34 files with 30k+ lines. I have added at least 2400 lines of comments and fixed some linting issues. With a PR of line difference 13323, even the code climate bot has given up.
+link to the <a href="http://shubhankarsharma00.tech/out/index.html">documentation</a>.</p>
+<p>After documentation in week 1 It was finally time for me to start working on refactoring and updating the JS codebase in CircuitVerse.
+I had spent most of my research time researching and refactoring the codebase so at least 10–20 percent work was already done. I started working on making separate files with default exports for most classes and object literals. Tried to move some global functions to appropriate files, changed some variable names which were not following camelCase. I also fixed some listing issues.
+In my official proposal, I have given myself a time of 4 weeks to refactor the whole codebase. But since I have learned a lot while documenting so I didn’t need to do research on some particular functionality before refactoring it, I did it in 2 weeks.</p>
+<p>Refactoring included:</p>
+<ul>
+<li>Converted ES5 classes to ES6 classes by using <a href="https://github.com/lebab/lebab">lebab</a> which is a great tool to convert ES5 code to ES6.</li>
+<li>imported relevant function into files.</li>
+<li>fixed some linting issues.</li>
+<li>removed redundant code.</li>
+</ul>
+<p>and much more, Here&rsquo;s the link to now merged
+PR: <a href="https://github.com/CircuitVerse/CircuitVerse/pull/1468">https://github.com/CircuitVerse/CircuitVerse/pull/1468</a>
+(please be patient the PR got very large and so the link crashes sometimes because response takes too long xD.)</p>
+<p>And then I got my first evaluation
+<img src="/images/eval1.jpg" alt="My First Evaluation"></p>
+<h2 id="phase-2">Phase 2:</h2>
+<p>In the second phase of my project I worked on:</p>
+<ul>
+<li>
+<p>Making a <a href="https://github.com/shubhankarsharma00/Cv-frontend">separate repository</a> for CircuitVerse-Simulator code.</p>
+</li>
+<li>
+<p>Completed testing, added tests for all elements and some more UI corner cases.</p>
+</li>
+</ul>
+<p>In the separate Repository I set up webpack (initially all work was on webpacker gem in Ruby on Rails) Then I made adjustments for an environment in which a developer will be able to make changes and implement features easily. There is a UI revamp project which ended just and I will be working on merging the UI changes to this repository and after setting all this I plan on adding this as a submodule to the rails app repository.</p>
+<p>Also I set up testing for simulator these tests are written in JEST and I have automated github action to test the newest code pushed onto master or incase there is a new PR on it. Report on these test can be seen <a href="https://github.com/shubhankarsharma00/Cv-frontend/actions">here</a>
+I am hopeful all these test, refactoring, documenting and linting will make it really easy for future contributors to pick up and implement new features into the simulator which was probably the hardest part of trying to contribute in CircuitVerse.</p>
+<p>Second Evaluation:</p>
+<p><img src="/images/eval2.jpg" alt="My Second Evaluation"></p>
+<h2 id="phase-3">Phase 3:</h2>
+<p>The third phase was the electron app. I used the same repo I separated in phase 2 as a submodule and modified it to do some web specific stuff differently using isElectron module. The electron app has all the features that the online simulator has but the save offline feature actually saves stuff offline in your file manager instead of browser localStorage. You can open this code online and you can also save circuits online from save offline feature.</p>
+<p>The separate repository can be found <a href="https://github.com/shubhankarsharma00/cv-electron">here</a></p>
+<p><img src="/images/electron-app.jpg" alt="Outlook">
+With an offline save, online save, and basic editor menu options.
+<img src="/images/electron-app-save.jpg" alt="Outlook"></p>
+<h2 id="results">Results:</h2>
+<p><img src="/images/gsoc_results.png" alt="Results"></p>
+<h2 id="further-work">Further Work:</h2>
+<p>After GSoC I will be working on integrating the new UI work (which has been done for the simulator) with the offline app and moving the current codebase to a separate repo officially.
+I will also be helping in the work left on SubCircuits.</p>
+<h2 id="epilogue">Epilogue:</h2>
+<p>I was able to achieve my proposal well before my proposed timeline and I learnt a lot in this journey. I would like to thank <a href="https://github.com/satu0king">Satvik</a> who taught and helped me a lot. He was always available and cleared all my doubts everytime despite being busy and working himself. Also I am grateful to Google which paid me for something I love doing. The whole process is great and the whole Open Source community is very helping. I just wish I can give back enough to a community that has given so much to me.</p>
+<p>Thanks for reading this.</p>
+
+    </div>
+    <div class="post-footer">
+      <div class="info">
+        
+        
+    <span class="separator"><a class="tag" href="/tags/gsoc/">gsoc</a><a class="tag" href="/tags/open-source/">open-source</a><a class="tag" href="/tags/google/">google</a><a class="tag" href="/tags/journey/">journey</a></span>
+
+      </div>
+    </div>
+
+    
+           
+    
+</div>
+
+
+                </div>
+            </div>
+        </div>
+
+<script type="text/javascript" src="http://shubhankarsharma00.tech/js/jquery.min.86b1e8f819ee2d9099a783e50b49dff24282545fc40773861f9126b921532e4c.js" integrity="sha256-hrHo&#43;BnuLZCZp4PlC0nf8kKCVF/EB3OGH5EmuSFTLkw=" crossorigin="anonymous"></script>
+
+
+
+
+<script type="text/javascript" src="http://shubhankarsharma00.tech/js/bundle.min.0f9c74cb78f13d1f15f33daff4037c70354f98acfbb97a6f61708966675c3cae.js" integrity="sha256-D5x0y3jxPR8V8z2v9AN8cDVPmKz7uXpvYXCJZmdcPK4=" crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="http://shubhankarsharma00.tech/js/medium-zoom.min.92f21c856129f84aeb719459b3e6ac621a3032fd7b180a18c04e1d12083f8aba.js" integrity="sha256-kvIchWEp&#43;ErrcZRZs&#43;asYhowMv17GAoYwE4dEgg/iro=" crossorigin="anonymous"></script></body>
+
+</html>

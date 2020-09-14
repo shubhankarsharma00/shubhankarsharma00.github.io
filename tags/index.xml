@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Blog of Shu</title>
+    <link>http://shubhankarsharma00.tech/tags/</link>
+    <description>Recent content in Tags on Blog of Shu</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 27 Aug 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://shubhankarsharma00.tech/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>google</title>
+      <link>http://shubhankarsharma00.tech/tags/google/</link>
+      <pubDate>Thu, 27 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://shubhankarsharma00.tech/tags/google/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>gsoc</title>
+      <link>http://shubhankarsharma00.tech/tags/gsoc/</link>
+      <pubDate>Thu, 27 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://shubhankarsharma00.tech/tags/gsoc/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>journey</title>
+      <link>http://shubhankarsharma00.tech/tags/journey/</link>
+      <pubDate>Thu, 27 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://shubhankarsharma00.tech/tags/journey/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>open-source</title>
+      <link>http://shubhankarsharma00.tech/tags/open-source/</link>
+      <pubDate>Thu, 27 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://shubhankarsharma00.tech/tags/open-source/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>index</title>
+      <link>http://shubhankarsharma00.tech/tags/index/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://shubhankarsharma00.tech/tags/index/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Blog of Shu</title>
+    <link>http://shubhankarsharma00.tech/post/</link>
+    <description>Recent content in Posts on Blog of Shu</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 27 Aug 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://shubhankarsharma00.tech/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Smulator Code Refactor: Final Report</title>
+      <link>http://shubhankarsharma00.tech/post/gsoc_final_sub/</link>
+      <pubDate>Thu, 27 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://shubhankarsharma00.tech/post/gsoc_final_sub/</guid>
+      <description>This is my final blogpost regarding GSoC 2020 and I will try to summarize everything I managed to accomplish while working on this amazing project.</description>
+    </item>
+    
+    <item>
+      <title>GSoC’20 with CircuitVerse</title>
+      <link>http://shubhankarsharma00.tech/post/gsoc_annoucement/</link>
+      <pubDate>Tue, 12 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>http://shubhankarsharma00.tech/post/gsoc_annoucement/</guid>
+      <description>On 6th May I received the above mail but my participation was already confirmed because the result was announced on 4th May.</description>
+    </item>
+    
+  </channel>
+</rss>
